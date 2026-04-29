@@ -1,11 +1,18 @@
 package com.HerexFullStack.Escuela.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
 
 @Entity
 @Table(name="users")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter @Setter
 public class UserSec {
 
     @Id
