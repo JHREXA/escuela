@@ -4,17 +4,13 @@ import com.HerexFullStack.Escuela.model.Permission;
 import com.HerexFullStack.Escuela.service.IPermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@Repository("/api/permissions")
+@RequestMapping("/api/permissions")
 public class PermissionController {
 
     @Autowired
@@ -33,7 +29,7 @@ public class PermissionController {
     }
 
     @PostMapping("/createPermission")
-    public ResponseEntity createPermission(Permission permission){
+    public ResponseEntity<?> createPermission(@RequestBody Permission permission){
         Permission newPermission = permissionService.savePermission(permission);
         return ResponseEntity.ok(newPermission);
     }

@@ -3,6 +3,7 @@ package com.HerexFullStack.Escuela.service;
 import com.HerexFullStack.Escuela.model.UserSec;
 import com.HerexFullStack.Escuela.repository.IUserSecRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,5 +38,10 @@ public class UserSecService implements IUserSecService{
     @Override
     public UserSec update(UserSec userSec) {
         return userSecRepository.save(userSec);
+    }
+
+    @Override
+    public String encriptPassword(String password) {
+        return new BCryptPasswordEncoder().encode(password);
     }
 }

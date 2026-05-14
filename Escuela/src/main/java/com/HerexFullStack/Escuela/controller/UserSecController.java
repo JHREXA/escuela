@@ -38,22 +38,36 @@ public class UserSecController {
     }
 
     @PostMapping("/createUser")
-    public ResponseEntity createUser(@RequestBody UserSec userSec){
+    public ResponseEntity<?> createUser(@RequestBody UserSec userSec) {
+
         Set<Role> roles = new HashSet<>();
-        Role readRole;
 
-        for(Role role : userSec.getRoleList()){
-            readRole = roleService.findById(role.getId()).orElse(null);
-            if (readRole != null){
-                roles.add(readRole);
+        if (userSec.getRoleList() == null || userSec.getRoleList().isEmpty()) {
+            return ResponseEntity.badRequest().body("Debe enviar al menos un rol");
+        }
+
+        userSec.setPassword(userSecService.encriptPassword(userSec.getPassword()));
+
+        for (Role role : userSec.getRoleList()) {
+
+            System.out.println("ROLE ID RECIBIDO: " + role.getId());
+
+            if (role.getId() == null) {
+                return ResponseEntity
+                        .badRequest()
+                        .body("El id del rol no puede ser null");
             }
-        }
-        if(!roles.isEmpty()){
-            userSec.setRoleList(roles);
 
-            UserSec newUserSec = userSecService.save(userSec);
-            return ResponseEntity.ok(newUserSec);
+            Role readRole = roleService.findById(role.getId())
+                    .orElseThrow(() -> new RuntimeException("Rol no encontrado con id: " + role.getId()));
+
+            roles.add(readRole);
         }
-        return null;
+
+        userSec.setRoleList(roles);
+
+        UserSec newUserSec = userSecService.save(userSec);
+
+        return ResponseEntity.ok(newUserSec);
     }
 }

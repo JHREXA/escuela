@@ -16,7 +16,7 @@ public class PermissionService implements IPermissionService {
 
 
     @Override
-    public List findAll() {
+    public List<Permission> findAll() {
         return permissionRepository.findAll();
     }
 
@@ -27,7 +27,7 @@ public class PermissionService implements IPermissionService {
 
     @Override
     public Permission savePermission(Permission permission) {
-        return null;
+        return permissionRepository.save(permission);
     }
 
     @Override
