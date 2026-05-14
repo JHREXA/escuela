@@ -16,6 +16,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+
+/*
+* Utility component responsible for creating, validating and reading JWT tokens.
+* */
 @Component
 public class JwtUtils {
 
@@ -24,6 +28,11 @@ public class JwtUtils {
     @Value("${security.jwt.user.generator}")
     private String userGenerator;
 
+    /*
+    * Creates a JWT from the authenticated user.
+    * @param authentication Spring Security authentication object.
+    * @return signed JWT token
+    * */
     public String createToken(Authentication autentication){
 
         Algorithm algorithm = Algorithm.HMAC256(privateKey);
@@ -48,6 +57,12 @@ public class JwtUtils {
             return jwtToken;
     }
 
+    /*
+    * Validates a JWT token and returns a decoded token.
+    * @param token JWT token
+    * @return decoded JWT token
+    * @throws JWTVerificationException if the token is expired or invalid
+    * */
     public DecodedJWT validateToken(String token){
 
         try{
@@ -63,14 +78,31 @@ public class JwtUtils {
         }
     }
 
+    /*
+    * Extracts the username from a decoded JWT.
+    * @param decodedJWT decodedJWT
+    * @return username stored in the subject.
+    *
+    * */
     public String extractUsername(DecodedJWT decodedJWT){
         return decodedJWT.getSubject().toString();
     }
 
+    /*
+    * Gets a specific claim from the decoded JWT
+    * @param decodedJWT decoded JWT
+    * @param claimName name of the claim
+    * @return claim value
+    * */
     public Claim getSpecificClaim(DecodedJWT decodedJWT, String claimName){
         return decodedJWT.getClaim(claimName);
     }
 
+    /*
+    * Gets all claims from a decoded JWT
+    * @param decodedJWT decoded JWT
+    * @return map with all the claims and their names.
+    * */
     public Map<String, Claim> getAllClaims(DecodedJWT decodedJWT){
         return decodedJWT.getClaims();
     }
