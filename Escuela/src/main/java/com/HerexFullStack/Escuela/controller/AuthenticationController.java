@@ -1,5 +1,6 @@
 package com.HerexFullStack.Escuela.controller;
 
+import com.HerexFullStack.Escuela.dto.AuthLoginRequestDTO;
 import com.HerexFullStack.Escuela.service.AuthService;
 import com.HerexFullStack.Escuela.service.UserDetailsServiceImp;
 import jakarta.validation.Valid;

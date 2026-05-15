@@ -21,33 +21,39 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 
 /**
- * Spring Security configuration class.
+ * Main Spring Security configuration class.
  *
- * Responsible for configuring authentication,
- * authorization, session management and password encoding.
+ * This class defines the security behavior of the application,
+ * including authentication, session management, JWT validation
+ * and password encryption.
  *
  * Main responsibilities:
  *
- * - Configure SecurityFilterChain
- * - Configure AuthenticationManager
- * - Register AuthenticationProvider
- * - Configure password encryption
- * - Define stateless session strategy
+ * - Configure the security filter chain
+ * - Register the JWT validation filter
+ * - Configure stateless session management
+ * - Expose the AuthenticationManager bean
+ * - Configure the AuthenticationProvider
+ * - Configure BCrypt password encryption
  *
  * Security strategy:
  *
  * - JWT based authentication
  * - Stateless sessions
- * - BCrypt password encryption
- * - Custom UserDetailsService
+ * - Custom UserDetailsService implementation
+ * - BCrypt password hashing
  *
- * Since JWT is used, sessions are not stored
- * on the server side.
+ * Since JWT authentication is used, the server does not store
+ * authentication sessions. Each request must provide its JWT token
+ * through the Authorization header.
+ *
+ * Example Authorization header:
+ *
+ * Authorization: Bearer eyJhbGciOiJIUzI1Ni...
  *
  * @author Jesus Hernandez Rexa
  * @since 1.0
  */
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -94,37 +100,42 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(form -> form.permitAll())
+                .authenticationProvider(authenticationProvider)
                 .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
                 .build();
     }
 
     /**
-     * Creates AuthenticationManager bean.
+     * Exposes the AuthenticationManager as a Spring bean.
      *
-     * AuthenticationManager is responsible for processing
-     * authentication requests and delegating authentication
-     * logic to the configured AuthenticationProvider.
+     * AuthenticationManager is responsible for processing authentication
+     * requests. In the login flow, it receives the username and password,
+     * delegates authentication to the configured AuthenticationProvider,
+     * and returns an Authentication object if credentials are valid.
      *
-     * @param authenticationConfiguration authentication configuration
+     * This bean can be injected into services such as AuthService.
      *
+     * @param authenticationConfiguration Spring authentication configuration
      * @return configured AuthenticationManager
-     *
-     * @throws Exception configuration exception
+     * @throws Exception if the AuthenticationManager cannot be created
      */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration){
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     /**
-     * Configures DaoAuthenticationProvider.
+     * Configures the authentication provider used by Spring Security.
      *
-     * DaoAuthenticationProvider retrieves users from
-     * UserDetailsService and validates passwords
-     * using the configured PasswordEncoder.
+     * DaoAuthenticationProvider uses a UserDetailsService to load users
+     * from the database and a PasswordEncoder to verify passwords.
      *
-     * @param userDetailsService custom user service
+     * In this application:
      *
+     * - UserDetailsServiceImp loads users, roles and permissions
+     * - BCryptPasswordEncoder verifies encrypted passwords
+     *
+     * @param userDetailsService custom service that loads users from the database
      * @return configured AuthenticationProvider
      */
     @Bean
