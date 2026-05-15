@@ -2,7 +2,7 @@ package com.HerexFullStack.Escuela.security.config;
 
 import com.HerexFullStack.Escuela.security.config.filters.JwtTokenValidator;
 import com.HerexFullStack.Escuela.service.UserDetailsServiceImp;
-import com.HerexFullStack.Escuela.utils.JwtUtils;
+import com.HerexFullStack.Escuela.security.config.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,46 +62,62 @@ public class SecurityConfig {
     private JwtUtils jwtUtils;
 
     /**
-     * Configures Spring Security filter chain.
+     * Configures the main Spring Security filter chain.
      *
-     * Security configuration:
+     * This method defines how incoming HTTP requests are secured by the application.
      *
-     * - Disables CSRF protection
-     * - Enables HTTP Basic authentication
-     * - Uses stateless session strategy
-     * - Allows form login
-     * - Registers custom JWT filter
+     * Current configuration:
      *
-     * JWT filter execution:
+     * - Disables CSRF protection.
+     * - Enables HTTP Basic authentication.
+     * - Configures the application as stateless.
+     * - Defines public and protected endpoints.
+     * - Enables form login temporarily.
+     * - Registers the custom AuthenticationProvider.
+     * - Adds the custom JWT validation filter before BasicAuthenticationFilter.
      *
-     * JwtTokenValidator is executed before
-     * BasicAuthenticationFilter.
+     * Authorization rules:
      *
-     * This allows incoming JWT tokens to be:
+     * - /auth/** is public and does not require authentication.
+     * - Any other request requires authentication.
      *
-     * - extracted from Authorization header
-     * - validated
-     * - converted into Authentication objects
-     * - stored inside SecurityContext
+     * JWT authentication flow:
      *
-     * Once authentication exists in SecurityContext,
-     * Spring Security treats the request as authenticated.
+     * 1. JwtTokenValidator reads the Authorization header.
+     * 2. If a Bearer token exists, the token is extracted.
+     * 3. JwtUtils validates the token.
+     * 4. Username and authorities are extracted from the token.
+     * 5. An Authentication object is created.
+     * 6. The Authentication object is stored in SecurityContext.
+     * 7. The request continues through the filter chain.
      *
-     * @param httpSecurity HttpSecurity configuration
-     * @param authenticationProvider authentication provider
+     * @param httpSecurity Spring Security HTTP configuration object
+     * @param authenticationProvider custom authentication provider used by Spring Security
      * @return configured SecurityFilterChain
-     * @throws Exception configuration exception
+     * @throws Exception if the security filter chain cannot be built
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity,
                                            AuthenticationProvider authenticationProvider)throws Exception{
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
+
                 .httpBasic(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**").permitAll()
+                        .anyRequest().authenticated()
+                )
                 .formLogin(form -> form.permitAll())
+
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
+
+                .addFilterBefore(
+                        new JwtTokenValidator(jwtUtils),
+                        BasicAuthenticationFilter.class)
                 .build();
     }
 

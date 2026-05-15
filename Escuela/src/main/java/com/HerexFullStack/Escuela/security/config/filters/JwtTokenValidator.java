@@ -1,6 +1,6 @@
 package com.HerexFullStack.Escuela.security.config.filters;
 
-import com.HerexFullStack.Escuela.utils.JwtUtils;
+import com.HerexFullStack.Escuela.security.config.utils.JwtUtils;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

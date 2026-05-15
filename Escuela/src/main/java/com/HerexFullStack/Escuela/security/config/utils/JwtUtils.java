@@ -1,4 +1,4 @@
-package com.HerexFullStack.Escuela.utils;
+package com.HerexFullStack.Escuela.security.config.utils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -37,9 +37,9 @@ public class JwtUtils {
 
         Algorithm algorithm = Algorithm.HMAC256(privateKey);
 
-        String username = autentication.getPrincipal().toString();
+        String username = authentication.getPrincipal().toString();
 
-        String authorities = autentication.getAuthorities()
+        String authorities = authentication.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
